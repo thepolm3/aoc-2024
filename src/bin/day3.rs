@@ -1,30 +1,28 @@
 use anyhow::Result;
 use regex::Regex;
 
+fn execute_mul(capture: regex::Captures<'_>) -> u32 {
+    capture.get(1).unwrap().as_str().parse::<u32>().unwrap()
+        * capture.get(2).unwrap().as_str().parse::<u32>().unwrap()
+}
 fn part1(input: &str) -> u32 {
     let re = Regex::new(r"mul\(([0-9]{1,3}),([0-9]{1,3})\)").unwrap();
-    re.captures_iter(input)
-        .map(|x| {
-            x.get(1).unwrap().as_str().parse::<u32>().unwrap()
-                * x.get(2).unwrap().as_str().parse::<u32>().unwrap()
-        })
-        .sum::<u32>()
+    re.captures_iter(input).map(execute_mul).sum::<u32>()
 }
 
 fn part2(input: &str) -> u32 {
     let re = Regex::new(r"mul\(([0-9]{1,3}),([0-9]{1,3})\)|do\(\)|don't\(\)").unwrap();
+
     let mut enabled = true;
     let mut acc = 0;
     for capture in re.captures_iter(input) {
         let name = capture.get(0).unwrap().as_str();
-        println!("{name}");
         match name {
             "do()" => enabled = true,
             "don't()" => enabled = false,
             _ => {
                 if enabled {
-                    acc += capture.get(1).unwrap().as_str().parse::<u32>().unwrap()
-                        * capture.get(2).unwrap().as_str().parse::<u32>().unwrap()
+                    acc += execute_mul(capture)
                 }
             }
         };
