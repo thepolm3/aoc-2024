@@ -51,6 +51,7 @@ impl Grid<char> {
         .count() as u32
     }
 }
+
 impl<T> Grid<T>
 where
     T: Copy,

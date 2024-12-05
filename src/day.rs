@@ -11,7 +11,7 @@ fn part2(input: ) -> u32 {
 }
 
 fn main() -> Result<()> {
-    let input = parse(&std::fs::read_to_string("inputs/day1.txt")?);
+    let input = parse(&std::fs::read_to_string("inputs/day.txt")?);
     let p1 = part1(input);
     println!("1.1: {p1}");
 
