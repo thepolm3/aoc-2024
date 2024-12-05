@@ -89,23 +89,26 @@ fn part1(rules: &[(u32, u32)], lists: &[Vec<u32>]) -> u32 {
         .sum()
 }
 
+fn sort(list: &mut [u32], rules: &[(u32, u32)]) {
+    'sorting: loop {
+        for i in 0..list.len() {
+            for j in (i + 1)..list.len() {
+                if rules.contains(&(list[j], list[i])) {
+                    list.swap(i, j);
+                    continue 'sorting;
+                }
+            }
+        }
+        break;
+    }
+}
 fn part2(rules: &[(u32, u32)], lists: &[Vec<u32>]) -> u32 {
     //stupid bubblesort ass algorithm
     lists
         .iter()
         .map(|list| {
             let mut list = list.clone();
-            'sorting: loop {
-                'outer: for i in 0..list.len() {
-                    for j in (i + 1)..list.len() {
-                        if rules.contains(&(list[j], list[i])) {
-                            list.swap(i, j);
-                            continue 'sorting;
-                        }
-                    }
-                }
-                break;
-            }
+            sort(&mut list, rules);
             list
         })
         .map(|list| list[list.len() / 2])
