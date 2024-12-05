@@ -89,28 +89,35 @@ fn part1(rules: &[(u32, u32)], lists: &[Vec<u32>]) -> u32 {
         .sum()
 }
 
-fn sort(list: &mut [u32], rules: &[(u32, u32)]) {
-    'sorting: loop {
-        for i in 0..list.len() {
-            for j in (i + 1)..list.len() {
-                if rules.contains(&(list[j], list[i])) {
-                    list.swap(i, j);
-                    continue 'sorting;
-                }
-            }
-        }
-        break;
+fn sort(mut list: Vec<u32>, rules: &[(u32, u32)]) -> Vec<u32> {
+    if list.is_empty() {
+        return list;
     }
+    let pivot = list.pop().unwrap();
+    let mut less = sort(
+        list.iter()
+            .filter(|y| rules.contains(&(pivot, **y)))
+            .copied()
+            .collect(),
+        rules,
+    );
+    let greater = sort(
+        list.iter()
+            .filter(|x| rules.contains(&(**x, pivot)))
+            .copied()
+            .collect(),
+        rules,
+    );
+
+    less.push(pivot);
+    less.extend(greater);
+    less
 }
 fn part2(rules: &[(u32, u32)], lists: &[Vec<u32>]) -> u32 {
     //stupid bubblesort ass algorithm
     lists
         .iter()
-        .map(|list| {
-            let mut list = list.clone();
-            sort(&mut list, rules);
-            list
-        })
+        .map(|list| sort(list.clone(), rules))
         .map(|list| list[list.len() / 2])
         .sum::<u32>()
         - part1(rules, lists)
