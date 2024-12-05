@@ -89,8 +89,15 @@ fn part1(rules: &[(u32, u32)], lists: &[Vec<u32>]) -> u32 {
         .sum()
 }
 
-//assume there's no unrelations between elements in lists, however that's
-//required for the problem to be well defined
+//This sort is unstable as hell! Also doesn't work in the general case,
+//where we might have: a < b < c, and c < d < e, which uniquely determines
+//the order however if we pick b as our pivot, it has no relation to d
+//in that case we should cry and weep, by which I mean have an additional
+//"previously unsortable" list that then gets sent to both children, and
+//if it sorts into both lists we have a problem, but if not then for a
+//well defined problem it should sort into exactly one of the sublists
+//however we're lucky enough that the input is nice here, so we do what
+//anyone should, and panic
 fn sort(list: &mut [u32], buf: &mut [u32], rules: &[(u32, u32)]) {
     let len = list.len();
     if len <= 1 {
@@ -108,6 +115,8 @@ fn sort(list: &mut [u32], buf: &mut [u32], rules: &[(u32, u32)]) {
         } else if rules.contains(&(pivot, elem)) {
             buf[len - j] = elem;
             j += 1;
+        } else {
+            panic!("unrelated elements found!");
         }
     }
     debug_assert_eq!(i, len - j);
