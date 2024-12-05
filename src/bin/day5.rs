@@ -89,35 +89,44 @@ fn part1(rules: &[(u32, u32)], lists: &[Vec<u32>]) -> u32 {
         .sum()
 }
 
-fn sort(mut list: Vec<u32>, rules: &[(u32, u32)]) -> Vec<u32> {
-    if list.is_empty() {
-        return list;
+//assume there's no unrelations between elements in lists, however that's
+//required for the problem to be well defined
+fn sort(list: &mut [u32], buf: &mut [u32], rules: &[(u32, u32)]) {
+    let len = list.len();
+    if len <= 1 {
+        return;
     }
-    let pivot = list.pop().unwrap();
-    let mut less = sort(
-        list.iter()
-            .filter(|y| rules.contains(&(pivot, **y)))
-            .copied()
-            .collect(),
-        rules,
-    );
-    let greater = sort(
-        list.iter()
-            .filter(|x| rules.contains(&(**x, pivot)))
-            .copied()
-            .collect(),
-        rules,
-    );
+    let pivot = list[0];
+    //from the front
+    let mut i = 0;
+    //from the back
+    let mut j = 1;
+    for elem in list[1..].iter().copied() {
+        if rules.contains(&(elem, pivot)) {
+            buf[i] = elem;
+            i += 1;
+        } else if rules.contains(&(pivot, elem)) {
+            buf[len - j] = elem;
+            j += 1;
+        }
+    }
+    debug_assert_eq!(i, len - j);
+    buf[i] = pivot;
+    list[..].copy_from_slice(&buf[..]);
 
-    less.push(pivot);
-    less.extend(greater);
-    less
+    sort(&mut list[0..i], &mut buf[0..i], rules);
+    sort(&mut list[i + 1..len], &mut buf[i + 1..len], rules);
 }
 fn part2(rules: &[(u32, u32)], lists: &[Vec<u32>]) -> u32 {
     //stupid bubblesort ass algorithm
     lists
         .iter()
-        .map(|list| sort(list.clone(), rules))
+        .map(|list| {
+            let mut list = list.clone();
+            let mut buf = list.clone();
+            sort(&mut list, &mut buf, rules);
+            list
+        })
         .map(|list| list[list.len() / 2])
         .sum::<u32>()
         - part1(rules, lists)
