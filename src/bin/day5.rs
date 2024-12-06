@@ -88,52 +88,32 @@ fn part1(rules: &[(u32, u32)], lists: &[Vec<u32>]) -> u32 {
         .map(|list| list[list.len() / 2])
         .sum()
 }
-
-//This sort is unstable as hell! Also doesn't work in the general case,
-//where we might have: a < b < c, and c < d < e, which uniquely determines
-//the order however if we pick b as our pivot, it has no relation to d
-//in that case we should cry and weep, by which I mean have an additional
-//"previously unsortable" list that then gets sent to both children, and
-//if it sorts into both lists we have a problem, but if not then for a
-//well defined problem it should sort into exactly one of the sublists
-//however we're lucky enough that the input is nice here, so we do what
-//anyone should, and panic
-fn sort(list: &mut [u32], buf: &mut [u32], rules: &[(u32, u32)]) {
-    let len = list.len();
-    if len <= 1 {
-        return;
-    }
-    let pivot = list[0];
-    //from the front
-    let mut i = 0;
-    //from the back
-    let mut j = 1;
-    for elem in list[1..].iter().copied() {
-        if rules.contains(&(elem, pivot)) {
-            buf[i] = elem;
-            i += 1;
-        } else if rules.contains(&(pivot, elem)) {
-            buf[len - j] = elem;
-            j += 1;
-        } else {
-            panic!("unrelated elements found!");
-        }
-    }
-    debug_assert_eq!(i, len - j);
-    buf[i] = pivot;
-    list[..].copy_from_slice(&buf[..]);
-
-    sort(&mut list[0..i], &mut buf[0..i], rules);
-    sort(&mut list[i + 1..len], &mut buf[i + 1..len], rules);
-}
 fn part2(rules: &[(u32, u32)], lists: &[Vec<u32>]) -> u32 {
     //stupid bubblesort ass algorithm
     lists
         .iter()
         .map(|list| {
             let mut list = list.clone();
-            let mut buf = list.clone();
-            sort(&mut list, &mut buf, rules);
+            //This doesn't work in the general case,
+            //where we might have: a < b < c, and c < d < e, which uniquely determines
+            //the order however if we pick b as our pivot, it has no relation to d
+            //in that case we should cry and weep, by which I mean have an additional
+            //"previously unsortable" list that then gets sent to both children, and
+            //if it sorts into both lists we have a problem, but if not then for a
+            //well defined problem it should sort into exactly one of the sublists
+            //however we're lucky enough that the input is nice here, so we do what
+            //anyone should, and panic
+            list.sort_unstable_by(|&a, &b| {
+                if a == b {
+                    Ordering::Equal
+                } else if rules.contains(&(a, b)) {
+                    Ordering::Greater
+                } else if rules.contains(&(b, a)) {
+                    Ordering::Less
+                } else {
+                    panic!("Two elements which are incomparable!");
+                }
+            });
             list
         })
         .map(|list| list[list.len() / 2])
