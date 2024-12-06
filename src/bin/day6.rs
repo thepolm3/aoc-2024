@@ -91,6 +91,7 @@ impl Grid {
         }
     }
 
+    //does nothing if out of range
     fn set_isize(&mut self, x: isize, y: isize, cell: Cell) {
         if x >= 0 && y >= 0 {
             self.set(x as usize, y as usize, cell)
@@ -138,7 +139,8 @@ fn parse(input: &str) -> (Grid, Guard) {
         },
     )
 }
-fn part1(grid: &Grid, mut guard: Guard) -> u32 {
+
+fn visits(grid: &Grid, mut guard: Guard) -> HashSet<(isize, isize)> {
     let mut visited = HashSet::with_capacity(grid.cells.len());
     loop {
         visited.insert(guard.position);
@@ -149,7 +151,10 @@ fn part1(grid: &Grid, mut guard: Guard) -> u32 {
             None => break,
         }
     }
-    visited.len() as u32
+    visited
+}
+fn part1(grid: &Grid, guard: Guard) -> u32 {
+    visits(grid, guard).len() as u32
 }
 
 fn loops(grid: &Grid, mut guard: Guard) -> bool {
@@ -169,17 +174,17 @@ fn loops(grid: &Grid, mut guard: Guard) -> bool {
 }
 
 fn part2(mut grid: Grid, guard: Guard) -> u32 {
-    let w = grid.width;
-    let h = grid.height;
     let mut n_loops = 0;
-    for (x, y) in (0..w).flat_map(|x| (0..h).map(move |y| (x, y))) {
-        let is_empty = matches!(grid.get(x, y), Some(Cell::Empty));
+    let mut visits = visits(&grid, guard);
+    visits.remove(&guard.position);
+    for (x, y) in visits {
+        let is_empty = matches!(grid.get_isize(x, y), Some(Cell::Empty));
         if is_empty {
-            grid.set(x, y, Cell::Obstacle);
+            grid.set_isize(x, y, Cell::Obstacle);
             if loops(&grid, guard) {
                 n_loops += 1
             }
-            grid.set(x, y, Cell::Empty);
+            grid.set_isize(x, y, Cell::Empty);
         }
     }
     n_loops
@@ -190,7 +195,7 @@ fn main() -> Result<()> {
 
     let p1 = part1(&grid, guard);
     println!("1.1: {p1}");
-
+    println!("{}", grid.width * grid.height);
     let p2 = part2(grid, guard);
     println!("1.2: {p2}");
 
