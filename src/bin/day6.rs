@@ -195,7 +195,7 @@ fn main() -> Result<()> {
 
     let p1 = part1(&grid, guard);
     println!("1.1: {p1}");
-    println!("{}", grid.width * grid.height);
+
     let p2 = part2(grid, guard);
     println!("1.2: {p2}");
 
