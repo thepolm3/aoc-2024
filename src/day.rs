@@ -2,11 +2,11 @@ use anyhow::Result;
 use itertools::Itertools;
 
 fn parse(input: &str) ->  {}
-fn part1(input: ) -> u32 {
+fn part1(input: ()) -> u32 {
     0
 }
 
-fn part2(input: ) -> u32 {
+fn part2(input: ()) -> u32 {
     0
 }
 
