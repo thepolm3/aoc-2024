@@ -130,18 +130,14 @@ fn part2(mut files: Vec<FileOrSpace>) -> usize {
 
         let file = files[file_index];
 
-        let space_index = files
+        let space_index = files[..file_index]
             .iter()
             .position(|x| x.is_space() && x.length >= file.length);
 
         if let Some(space_index) = space_index {
-            if space_index < file_index {
-                files[space_index].length -= file.length;
-                files[file_index].id = None;
-                files.insert(space_index, file);
-
-                files = merge_files(files);
-            }
+            files[space_index].length -= file.length;
+            files[file_index].id = None;
+            files.insert(space_index, file);
         }
         moving_id -= 1;
     }
