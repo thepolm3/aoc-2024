@@ -1,24 +1,14 @@
-use partial_sort::PartialSort;
 use std::cmp::Ordering;
-use std::collections::BTreeSet;
 
 use anyhow::Result;
-use itertools::chain;
-use itertools::Itertools;
 use nom::{
     bytes::complete::tag,
     character::complete::newline,
-    combinator::{map, map_res},
+    combinator::map_res,
     multi::{count, separated_list1},
     sequence::separated_pair,
     IResult,
 };
-
-#[derive(PartialEq, Eq)]
-enum BinaryTree {
-    Empty,
-    Full((u32, Box<BinaryTree>, Box<BinaryTree>)),
-}
 
 fn digit1(input: &str) -> IResult<&str, u32> {
     map_res(nom::character::complete::digit1, str::parse::<u32>)(input)
@@ -32,7 +22,7 @@ fn list(input: &str) -> IResult<&str, Vec<u32>> {
     separated_list1(tag(","), digit1)(input)
 }
 
-fn parse<'a>(input: &str) -> IResult<&str, (Vec<(u32, u32)>, Vec<Vec<u32>>)> {
+fn parse(input: &str) -> IResult<&str, (Vec<(u32, u32)>, Vec<Vec<u32>>)> {
     separated_pair(
         separated_list1(newline, rule),
         count(newline, 2),

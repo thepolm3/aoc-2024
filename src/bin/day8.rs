@@ -4,7 +4,6 @@ use std::{
 };
 
 use anyhow::Result;
-use itertools::Itertools;
 
 #[derive(Debug)]
 struct Antennaes {
