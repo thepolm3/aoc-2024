@@ -1,4 +1,4 @@
-use std::{collections::HashSet, convert::identity};
+use std::collections::HashSet;
 
 use anyhow::Result;
 use itertools::Itertools;
